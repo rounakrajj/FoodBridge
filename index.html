@@ -1,0 +1,367 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>AI-Powered Food Redistribution:Food Bridge</title>
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #82CFFD 0%, #138D75 100%);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 600px;
+    max-width: 350px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1rem;
+    user-select: none;
+  }
+
+  .container {
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 1rem 1.5rem 2rem;
+    width: 100%;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+  }
+  h1 {
+    text-align: center;
+    font-weight: 700;
+    margin: 0 0 0.3rem;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 3px #0a5644;
+  }
+  p.subtitle {
+    text-align: center;
+    margin-top: 0;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #cce8d7dd;
+  }
+
+  form {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #daf6e3;
+  }
+
+  select, input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background: #4bb17ccc;
+    color: white;
+    font-weight: 600;
+    box-shadow: inset 1px 1px 5px #2c6245;
+    transition: background 0.2s ease-in-out;
+  }
+  select:focus,
+  input[type="number"]:focus,
+  input[type="text"]:focus {
+    background: #57d584cc;
+    box-shadow: 0 0 7px #3b8248aa;
+  }
+
+  button {
+    margin-top: 1rem;
+    background-color: #0d5c39;
+    border: none;
+    border-radius: 12px;
+    padding: 0.7rem 0;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #cde8d8;
+    box-shadow: 0 5px 12px #0d5c3999;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #13a05e;
+    color: #e5f4e3;
+  }
+
+  .dashboard {
+    margin-top: 1.5rem;
+    background: #0f3c24cc;
+    padding: 1rem 1rem 1.2rem;
+    border-radius: 15px;
+    box-shadow: inset 0 0 15px #0a2614cc;
+  }
+
+  .dashboard section {
+    margin-bottom: 1rem;
+  }
+
+  .dashboard h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+    border-bottom: 2px solid #2dac61cc;
+    padding-bottom: 0.3rem;
+  }
+
+  .output-item {
+    background: #136641cc;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    color: #cde8d8;
+  }
+
+  .risk-low {
+    color: #a3e635;
+    font-weight: 700;
+  }
+  .risk-medium {
+    color: #facc15;
+    font-weight: 700;
+  }
+  .risk-high {
+    color: #ef4444;
+    font-weight: 700;
+  }
+
+  /* Scroll container if needed */
+  .recipients-list, .route-list {
+    max-height: 130px;
+    overflow-y: auto;
+  }
+
+  /* Responsive text resize for smaller screens */
+  @media (max-width: 320px) {
+    h1 {
+      font-size: 1.3rem;
+    }
+    button {
+      font-size: 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container" role="main">
+  <h1>Food Redistribution System</h1>
+  <p class="subtitle">Predict & Match Donations to Recipients</p>
+  <form id="donationForm" aria-label="Enter donation details form">
+    <label for="donorType">Donor Type</label>
+    <select id="donorType" required aria-required="true" aria-describedby="donorTypeHelp">
+      <option value="" disabled selected>Select donor type</option>
+      <option value="restaurant">Restaurant</option>
+      <option value="event">Event</option>
+      <option value="household">Household</option>
+    </select>
+    <small id="donorTypeHelp" style="color:#daf6e3cc; font-size:0.7rem; display:block; margin-top:-0.5rem; margin-bottom:0.5rem;">Who is donating?</small>
+
+    <label for="foodType">Food Type</label>
+    <select id="foodType" required aria-required="true" aria-describedby="foodTypeHelp">
+      <option value="" disabled selected>Select food type</option>
+      <option value="perishable">Perishable</option>
+      <option value="non-perishable">Non-perishable</option>
+      <option value="prepared">Prepared Meal</option>
+      <option value="beverages">Beverages</option>
+    </select>
+    <small id="foodTypeHelp" style="color:#daf6e3cc; font-size:0.7rem; display:block; margin-top:-0.5rem; margin-bottom:0.5rem;">Type of food donated</small>
+
+    <label for="quantity">Quantity (kg)</label>
+    <input id="quantity" type="number" min="0.1" step="0.1" required aria-required="true" aria-describedby="quantityHelp" placeholder="E.g., 5.5" />
+    <small id="quantityHelp" style="color:#daf6e3cc; font-size:0.7rem; display:block; margin-top:-0.5rem; margin-bottom:0.5rem;">Estimate in kilograms</small>
+
+    <label for="location">Location (City Name)</label>
+    <input id="location" type="text" required aria-required="true" aria-describedby="locationHelp" placeholder="E.g., Haldia" />
+    <small id="locationHelp" style="color:#daf6e3cc; font-size:0.7rem; display:block; margin-top:-0.5rem; margin-bottom:0.5rem;">City for pickup</small>
+
+    <button type="submit" aria-label="Submit donation details">Predict & Match</button>
+  </form>
+
+  <div class="dashboard" aria-live="polite" aria-atomic="true" aria-relevant="additions removals">
+    <section aria-labelledby="wastePredictTitle">
+      <h2 id="wastePredictTitle">Predicted Waste Quantity</h2>
+      <p id="predictedWaste" tabindex="0">No data yet.</p>
+    </section>
+    <section aria-labelledby="matchTitle">
+      <h2 id="matchTitle">Matched Recipients</h2>
+      <div class="recipients-list" id="recipientList" tabindex="0" aria-label="List of matched recipients">
+        <p>No matches yet.</p>
+      </div>
+    </section>
+    <section aria-labelledby="spoilageTitle">
+      <h2 id="spoilageTitle">Spoilage Risk Level</h2>
+      <p id="spoilageRisk" tabindex="0">No data yet.</p>
+    </section>
+    <section aria-labelledby="routeTitle">
+      <h2 id="routeTitle">Optimized Delivery Route</h2>
+      <div class="route-list" id="routeList" tabindex="0" aria-label="Optimized delivery route list">
+        <p>No route yet.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  // Sample NGO recipients database
+  const recipients = [
+    { name: "Helping Hands NGO", location: "Haldia", typesAccepted: ["perishable", "prepared", "beverages"] },
+    { name: "Food for All", location: "Kolkata", typesAccepted: ["non-perishable", "perishable"] },
+    { name: "Care Shelter", location: "Ranichak", typesAccepted: ["perishable", "prepared"] },
+    { name: "Community Kitchen", location: "Haldia Township", typesAccepted: ["beverages", "prepared", "non-perishable"] },
+    { name: "Shelter Hope", location: "Gandhinagar", typesAccepted: ["prepared", "non-perishable", "perishable"] },
+  ];
+
+  // Simple city distance approx (for demo only, returns distance index)
+  // Smaller return means closer
+  function distanceBetweenCities(city1, city2) {
+    // Arbitrary preset distances between cities for demo
+    const cityOrder = ["Haldia", "Ranichak", "Kolkata", "Haldia Township"];
+    const idx1 = cityOrder.indexOf(city1);
+    const idx2 = cityOrder.indexOf(city2);
+    if (idx1 === -1 || idx2 === -1) return 999; // unknown city
+    return Math.abs(idx1 - idx2) * 50; // 50km increments
+  }
+
+  // Predict waste qty based on quantity and donor type with simple multipliers
+  function predictWaste(quantity, donorType) {
+    let wasteRatio;
+    switch(donorType) {
+      case 'restaurant': wasteRatio = 0.25; break;
+      case 'event': wasteRatio = 0.4; break;
+      case 'household': wasteRatio = 0.15; break;
+      default: wasteRatio = 0.2;
+    }
+    return (quantity * wasteRatio).toFixed(2);
+  }
+
+  // Spoilage risk estimation based on food type and quantity
+  function estimateSpoilage(foodType, quantity) {
+    // Basic logic:
+    // Perishable large qty => high risk
+    // Perishable small qty => medium
+    // Prepared food medium qty => medium
+    // Non-perishable => low
+    // Beverages => low to medium based on qty
+    if (foodType === "perishable") {
+      if (quantity > 10) return "High";
+      else if (quantity > 4) return "Medium";
+      else return "Low";
+    } else if (foodType === "prepared") {
+      if (quantity > 6) return "Medium";
+      else return "Low";
+    } else if (foodType === "beverages") {
+      if (quantity > 8) return "Medium";
+      else return "Low";
+    } else {
+      return "Low";
+    }
+  }
+
+  // Match recipients by proximity & food type acceptance
+  function matchRecipients(foodType, donorLocation) {
+    // Filter recipients accepting the food type
+    let acceptableRecipients = recipients.filter(r => r.typesAccepted.includes(foodType));
+    // Sort by distance to donor location (ascending)
+    acceptableRecipients.sort((a,b) => {
+      return distanceBetweenCities(donorLocation, a.location) - distanceBetweenCities(donorLocation, b.location);
+    });
+    return acceptableRecipients;
+  }
+
+  // Route optimization simulation: returns recipient list ordered by proximity
+  function optimizeRoute(donorLocation, recipientList) {
+    // This is the sorted list by distance from donorLocation already (reuse matchRecipients result)
+    return recipientList;
+  }
+
+  // Utility to create risk element with color
+  function createRiskElement(riskLevel) {
+    let span = document.createElement('span');
+    span.textContent = riskLevel;
+    if (riskLevel === 'Low') {
+      span.className = 'risk-low';
+    } else if (riskLevel === 'Medium') {
+      span.className = 'risk-medium';
+    } else if (riskLevel === 'High') {
+      span.className = 'risk-high';
+    }
+    return span;
+  }
+
+  const donationForm = document.getElementById('donationForm');
+  const wasteOutput = document.getElementById('predictedWaste');
+  const recipientListElem = document.getElementById('recipientList');
+  const spoilageRiskElem = document.getElementById('spoilageRisk');
+  const routeListElem = document.getElementById('routeList');
+
+  donationForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    // Capture inputs
+    const donorType = document.getElementById('donorType').value;
+    const foodType = document.getElementById('foodType').value;
+    const quantity = parseFloat(document.getElementById('quantity').value);
+    const location = document.getElementById('location').value.trim();
+
+    if (!donorType || !foodType || !quantity || !location) {
+      alert('Please fill out all form fields correctly.');
+      return;
+    }
+
+    // Predict waste quantity
+    const predictedWaste = predictWaste(quantity, donorType);
+    wasteOutput.textContent = `${predictedWaste} kg (approx.)`;
+
+    // Calculate spoilage risk level
+    const spoilageRisk = estimateSpoilage(foodType, quantity);
+    spoilageRiskElem.innerHTML = '';
+    spoilageRiskElem.appendChild(createRiskElement(spoilageRisk));
+
+    // Find matched recipients
+    const matched = matchRecipients(foodType, location);
+
+    // Display matched recipients
+    if (matched.length === 0) {
+      recipientListElem.innerHTML = '<p>No suitable recipients found nearby.</p>';
+      routeListElem.innerHTML = '<p>No route available.</p>';
+      return;
+    }
+    recipientListElem.innerHTML = '';
+    matched.forEach(r => {
+      const div = document.createElement('div');
+      div.className = 'output-item';
+      div.textContent = r.name + ' - ' + r.location;
+      recipientListElem.appendChild(div);
+    });
+
+    // Optimize delivery route (simulate)
+    const route = optimizeRoute(location, matched);
+    routeListElem.innerHTML = '';
+    route.forEach((r, i) => {
+      const div = document.createElement('div');
+      div.className = 'output-item';
+      div.textContent = `${i+1}. ${r.name} (${r.location})`;
+      routeListElem.appendChild(div);
+    });
+  });
+</script>
+</body>
+</html>
